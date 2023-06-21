@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from customer.models import Customer, Representatives,UserTable,VendorsInsights,VendorsMailSent
+from customer.models import Customer, Representatives,UserTable,VendorsInsights,VendorsMailSent,Otp
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -88,3 +88,34 @@ class VendorsMailSentSerializers(serializers.ModelSerializer):
         response = super().to_representation(instance)
         response['represent'] = RepresentativesSerializer(instance.represent).data
         return response
+
+
+class OtpVerificationSerializer(serializers.ModelSerializer):
+    otp = serializers.CharField(min_length=6, max_length=6)
+    email = serializers.EmailField()
+    class Meta:
+        model = Otp
+        fields = '__all__'
+    def validate_otp(self, otp):
+        if otp:
+            if Otp.objects.filter(otp=otp).exists():
+                user_instance = UserTable.objects.get(email=self.instance["email"].lower())
+                if Otp.objects.get(email=user_instance.pk):
+                    return otp
+                raise serializers.ValidationError('OTP does not matched')
+            raise serializers.ValidationError('OTP does not exits.')
+        raise serializers.ValidationError('Please generate Otp again!!!')
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=6, max_length=20)
+    email = serializers.EmailField()
+    class Meta:
+        model = Otp
+        fields = '__all__'
+    def validate_email(self, email):
+        user_instance = UserTable.objects.get(email=email).lower()
+        print(user_instance.email)
+        if Otp.objects.filter(email_id=user_instance.pk).exists():
+            if Otp.objects.get(email_id=user_instance.pk):
+                return email
+        else:
+            return serializers.ValidationError('Email does not matched')

@@ -36,7 +36,7 @@ class Representatives(models.Model):
 
 class VendorsInsights(models.Model):
     company = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    prev_date = models.DateField(widget=forms.DateInput(format='%d-%m-%Y'),blank = True,null= True)
+    prev_date = models.DateField(blank = True,null= True)
     current_date = models.DateField(blank = True, null = True)
     next_date = models.DateField(blank = True, null = True)
 
@@ -46,7 +46,15 @@ class VendorsInsights(models.Model):
 class VendorsMailSent(models.Model):
     represent = models.ForeignKey(Representatives, on_delete=models.CASCADE)
     subject = models.CharField(max_length=300, blank = True, null = True)
-    body = models.CharField(max_length=1000, blank = True, null = True) 
+    body = models.CharField(max_length=1000, blank = True, null = True)
 
     def __str__(self):
         return str(self.represent)
+
+class Otp(models.Model):
+    email = models.ForeignKey(UserTable, on_delete=models.CASCADE)
+    otp = models.IntegerField(default=0, unique=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    def __str__(self) -> str:
+        return str(self.otp)
+
