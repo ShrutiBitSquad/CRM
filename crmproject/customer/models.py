@@ -26,7 +26,7 @@ class Customer(models.Model):
         return str(self.company_name)
 
 class Representatives(models.Model):
-    company = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    company = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=100)
     email = models.EmailField()
     contact_no = models.CharField(max_length=15)
@@ -36,11 +36,17 @@ class Representatives(models.Model):
 
 class VendorsInsights(models.Model):
     company = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    prev_date = models.DateField(blank = True,null= True)
+    prev_date = models.DateField(widget=forms.DateInput(format='%d-%m-%Y'),blank = True,null= True)
     current_date = models.DateField(blank = True, null = True)
     next_date = models.DateField(blank = True, null = True)
+
+    def __str__(self):
+        return str(self.current_date)
 
 class VendorsMailSent(models.Model):
     represent = models.ForeignKey(Representatives, on_delete=models.CASCADE)
     subject = models.CharField(max_length=300, blank = True, null = True)
     body = models.CharField(max_length=1000, blank = True, null = True) 
+
+    def __str__(self):
+        return str(self.represent)

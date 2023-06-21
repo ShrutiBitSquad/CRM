@@ -12,19 +12,14 @@ from datetime import datetime,timedelta
 # Create your views here.
 
 class RegisterAPI(APIView):
-    """Api to store the new user details into database"""
-
     def post(self, request):
-        """so save the details and generating the user id"""
         serializer = UserTableSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'successfully registered'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response(serializer.errors,status = status.HTTP_400_BAD_REQUEST)
 
 class LoginAPI(TokenObtainPairView):
-    """Api for user to login into project"""
     permission_classes = (AllowAny,)
     serializer_class = AuthTokenSerializer
 
@@ -39,21 +34,20 @@ class CustomerAPIView(APIView):
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data,status= 201)
-        return Response(serializers.errors,status=400)
-
+        return Response({'message':'Not Registered as invlaid inputs'},serializers.errors,status=400)
 
 class RepresentativesAPIView(APIView):
     def get(self,request):
         companies = Representatives.objects.all()
-        serializers =RepresentativesAPIView(companies,many = True)
+        serializers =RepresentativesSerializer(companies,many = True)
         return Response(serializers.data)
     
     def post(self,request):
-        serializers = RepresentativesAPIView(data = request.data)
+        serializers = RepresentativesSerializer(data = request.data)
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data,status= 201)
-        return Response(serializers.errors,status=400)
+        return Response({'message':'Not Registered as invlaid inputs'},serializers.errors,status=400)
 
 class VendorsInsightsAPIView(APIView):
     def get(self,request):
@@ -78,11 +72,17 @@ class VendorsInsightsAPIView(APIView):
             return Response(serializers.data, status=201)
         return Response(serializers.errors, status=400)
 
-
 class VendorsMailSentAPIView(APIView):
+    def get(self, request):
+        mailsent = VendorsMailSent.objects.all()
+        serializers = VendorsMailSentSerializers(mailsent,many = True)
+        return Response(serializers.data)
+    
     def post(self,request):
         serializers = VendorsMailSentSerializers(data = request.data)
         if serializers.is_valid():
             serializers.save()
+            vendors_insights = VendorsInsightsAPIView()
+            vendors_insights.post(request)
             return Response(serializers.data,status= 201)
         return Response(serializers.errors,status=400)
