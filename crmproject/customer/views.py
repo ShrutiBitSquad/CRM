@@ -120,6 +120,7 @@ class OtpVerification(APIView):
         if serializer.is_valid(raise_exception=True):
             return Response({"otp": "verified"}, status=status.HTTP_200_OK)
         return Response({"otp": "please generate otp again"}, status=status.HTTP_400_BAD_REQUEST)
+    
 class ResetPasswordview(genericpath.UpdateAPIView):
     """Api to reset the password and storing the new password into database"""
     if OtpVerificationSerializer:
